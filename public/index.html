@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firebase Auth: Google - TechFerment</title>
+  </head>
+  <body>
+    <h1>Welcome : Firebase Auth: Google</h1>
+    <p>TechFerment: Firebase For Web</p>
+
+    <div id="LoginScreen">
+      <button id="login">Login with Google</button>
+    </div>
+
+    <div id="dashboard">
+      <div id="userDetails"></div>
+      <button id="logout">Logout</button>
+    </div>
+    <button><a id="teacher" href="index1.html">TeacherLogin</button>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <!-- <script src="/__/firebase/init.js"></script> -->
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+     <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-analytics.js";
+      // import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js'
+      import { GoogleAuthProvider, getAuth, signInWithPopup, signInWithRedirect,signOut, getRedirectResult, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js';
+      import { getFirestore, collection, getDocs, addDoc } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js'
+// auth.languageCode = 'it';
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyB1FJecvf68lmSBHYyPfwP83IEH85taKdA",
+        authDomain: "sign-in-68757.firebaseapp.com",
+        projectId: "sign-in-68757",
+        storageBucket: "sign-in-68757.appspot.com",
+        messagingSenderId: "549297837504",
+        appId: "1:549297837504:web:4092ff727a611dee8b2425",
+        measurementId: "G-V665YFDW9W"
+        // Paste your Config Code
+      };
+      // Initialize Firebase
+      // firebase.initializeApp(firebaseConfig);
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+      const db = getFirestore(app);
+      const provider = new GoogleAuthProvider();
+      const auth = getAuth();
+      provider.setCustomParameters({
+  'hd': 'sairamtap.edu.in'
+});
+// const {OAuth2Client} = require('google-auth-library');
+// const client = new OAuth2Client(549297837504-bivb1avfrlj6klbtl8up8ghjj5au7t0e.apps.googleusercontent.com);
+// async function verify() {
+//   const ticket = await client.verifyIdToken({
+//       idToken: token,
+//       audience: 549297837504-bivb1avfrlj6klbtl8up8ghjj5au7t0e.apps.googleusercontent.com,  // Specify the CLIENT_ID of the app that accesses the backend
+//       // Or, if multiple clients access the backend:
+//       //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+//   });
+//   const payload = ticket.getPayload();
+//   const userid = payload['sub'];
+//   // If request specified a G Suite domain:
+//   const domain = payload['hd'];
+// }
+// verify().catch(console.error);
+      document.getElementById('dashboard').style.display="none"
+
+      document.getElementById('login').addEventListener('click', GoogleLogin)
+      document.getElementById('logout').addEventListener('click', LogoutUser)
+
+      // let provider = new app.auth.GoogleAuthProvider()
+
+      function GoogleLogin(){
+        console.log('Login Btn Call')
+        signInWithPopup(auth,provider.setCustomParameters({
+  'hd': 'sairamtap.edu.in'
+})).then(res=>{
+          // const myArr = res.email.split("@");
+          // if(myArr[1]=="sairamtap.edu.in"){
+          console.log(res)
+          document.getElementById('LoginScreen').style.display="none"
+          document.getElementById('dashboard').style.display="block"
+          showUserDetails(res.user)
+        // }
+        // else{
+        //     console.log("invalid id");
+        //   }  
+        }).catch(e=>{
+          console.log(e)
+        })
+      }
+
+      function showUserDetails(user){
+        document.getElementById('userDetails').innerHTML = `
+          <img src="${user.photoURL}" style="width:10%">
+          <p>Name: ${user.displayName}</p>
+          <p>Email: ${user.email}</p>
+        `
+      }
+
+      function checkAuthState(){
+        getRedirectResult(auth).then(user=>{
+          if(user)
+          {
+            document.getElementById('LoginScreen').style.display="none"
+            document.getElementById('dashboard').style.display="block"
+            showUserDetails(user)
+            return addDoc(collection(db, "user"),{
+            'displayName': user.displayName,
+            'email': user.email,
+            'photoURL': user.photoURL
+    },{
+        merge: true
+    }).then(() => {
+        return true;
+    }).catch(err => { // Not a white-listed domain
+        console.log(err);
+        return false;
+    });
+          }else{
+
+          }
+        })
+      }
+
+      function LogoutUser(){
+        console.log('Logout Btn Call')
+        signOut(auth).then(()=>{
+          document.getElementById('LoginScreen').style.display="block"
+          document.getElementById('dashboard').style.display="none"
+        }).catch(e=>{
+          console.log(e)
+        })
+      }
+      checkAuthState()
+    </script>
+  </body>
+</html>
