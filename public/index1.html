@@ -30,7 +30,8 @@
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-analytics.js";
       // import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js'
       import { GoogleAuthProvider, getAuth, signInWithPopup,signInWithRedirect, signOut, getRedirectResult, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js';
-// auth.languageCode = 'it';
+      import { getFirestore, collection, getDocs, addDoc,setDoc, doc } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js'
+      // auth.languageCode = 'it';
       // Your web app's Firebase configuration
       var firebaseConfig = {
         apiKey: "AIzaSyB1FJecvf68lmSBHYyPfwP83IEH85taKdA",
@@ -47,6 +48,7 @@
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
       const provider = new GoogleAuthProvider();
+      const db = getFirestore(app);
       const auth = getAuth();
       provider.setCustomParameters({
   'hd': 'sairam.edu.in'
@@ -79,6 +81,18 @@
           <p>Name: ${user.displayName}</p>
           <p>Email: ${user.email}</p>
         `
+        return setDoc(doc(db, "user1",user.uid),{
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL
+    },{
+        merge: true
+    }).then(() => {
+        return true;
+    }).catch(err => { // Not a white-listed domain
+        console.log(err);
+        return false;
+    });
       }
 
       function checkAuthState(){

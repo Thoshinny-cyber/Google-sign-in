@@ -30,7 +30,7 @@
       import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-analytics.js";
       // import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js'
       import { GoogleAuthProvider, getAuth, signInWithPopup, signInWithRedirect,signOut, getRedirectResult, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js';
-      import { getFirestore, collection, getDocs, addDoc } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js'
+      import { getFirestore, collection, getDocs, addDoc,setDoc, doc } from 'https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js'
 // auth.languageCode = 'it';
       // Your web app's Firebase configuration
       var firebaseConfig = {
@@ -101,6 +101,18 @@
           <p>Name: ${user.displayName}</p>
           <p>Email: ${user.email}</p>
         `
+        return setDoc(doc(db, "user",user.uid),{
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL
+    },{
+        merge: true
+    }).then(() => {
+        return true;
+    }).catch(err => { // Not a white-listed domain
+        console.log(err);
+        return false;
+    });
       }
 
       function checkAuthState(){
@@ -110,18 +122,6 @@
             document.getElementById('LoginScreen').style.display="none"
             document.getElementById('dashboard').style.display="block"
             showUserDetails(user)
-            return addDoc(collection(db, "user"),{
-            'displayName': user.displayName,
-            'email': user.email,
-            'photoURL': user.photoURL
-    },{
-        merge: true
-    }).then(() => {
-        return true;
-    }).catch(err => { // Not a white-listed domain
-        console.log(err);
-        return false;
-    });
           }else{
 
           }
